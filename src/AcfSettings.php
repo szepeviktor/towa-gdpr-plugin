@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Acf Settings File.
+ * Acf Settings File
  *
  * @author  Martin Welte
  * @copyright Towa 2019
@@ -10,11 +10,14 @@
 namespace Towa\GdprPlugin;
 
 use Towa\Acf\Fields\ColorPicker;
+use Towa\Acf\Fields\Text;
 use Towa\Acf\Fields\Number;
 use Towa\Acf\Fields\Relation;
 use Towa\Acf\Fields\Tab;
-use Towa\Acf\Fields\Text;
 use Towa\Acf\Fields\Wysiwyg;
+use Towa\Acf\Fields\Select;
+use Towa\GdprPlugin\Backup\Backup;
+use Towa\GdprPlugin\Backup\BackupType;
 
 /**
  * Class AcfSettings.
@@ -65,10 +68,12 @@ class AcfSettings implements AcfGroupInterface
 
     /**
      * Function build_fields returns Array of ACF Fields.
+     *
+     * @return array
      */
     public function buildFields(): array
     {
-        return [
+        return array_merge([
             (new Tab($this->name, 'general_settings_tab', __('general Settings', 'towa-gdpr-plugin')))->build(),
             (new Text($this->name, 'tagmanager', __('Tagmanager ID', 'towa-gdpr-plugin')))->build(
                 [
@@ -130,6 +135,14 @@ class AcfSettings implements AcfGroupInterface
                     'instructions' => __('All Pages/Custom Posts where the cookie notice will not be shown, and no tracking will happen. <strong>requires HTML cache refresh if changed.</strong>', 'towa-gdpr-plugin'),
                 ]
             ),
-        ];
+		        (new Tab($this->name, 'logging_settings', __('Consent Logging', 'towa-gdpr-plugin')))->build(),
+		        (new Select($this->name, 'backup_type', __('Backup type', 'towa-gdpr-plugin')))->build(
+			          [
+				          'choices' => Backup::get_types_for_acf()
+			          ]
+		        ),
+	        ],
+	        Backup::get_conditional_acf_settings($this->name)
+      );
     }
 }
