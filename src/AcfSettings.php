@@ -15,14 +15,13 @@ use Towa\Acf\Fields\Number;
 use Towa\Acf\Fields\Relation;
 use Towa\Acf\Fields\Tab;
 use Towa\Acf\Fields\Wysiwyg;
-use Towa\Acf\Fields\Select;
-use Towa\GdprPlugin\Backup\Backup;
-use Towa\GdprPlugin\Backup\BackupType;
 
 /**
- * Class AcfSettings.
+ * Class AcfSettings
+ *
+ * @package Towa\GdprPlugin
  */
-class AcfSettings implements AcfGroupInterface
+class AcfSettings implements AcfGroup
 {
     /**
      * Name of AcfGroup.
@@ -135,14 +134,9 @@ class AcfSettings implements AcfGroupInterface
                     'instructions' => __('All Pages/Custom Posts where the cookie notice will not be shown, and no tracking will happen. <strong>requires HTML cache refresh if changed.</strong>', 'towa-gdpr-plugin'),
                 ]
             ),
-		        (new Tab($this->name, 'logging_settings', __('Consent Logging', 'towa-gdpr-plugin')))->build(),
-		        (new Select($this->name, 'backup_type', __('Backup type', 'towa-gdpr-plugin')))->build(
-			          [
-				          'choices' => Backup::get_types_for_acf()
-			          ]
-		        ),
-	        ],
-	        Backup::get_conditional_acf_settings($this->name)
-      );
+            (new Tab($this->name, 'logging_settings', __('Consent Logging', 'towa-gdpr-plugin')))->build(),
+            ],
+            apply_filters('towa_gdpr_get_additional_acf_settings', $this->name)
+        );
     }
 }
