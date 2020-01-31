@@ -11,75 +11,66 @@ namespace Towa\GdprPlugin\Backup;
 
 use League\Flysystem\Adapter\Ftp;
 use League\Flysystem\Adapter\Local;
-use League\Flysystem\Exception;
 use League\Flysystem\Filesystem;
 use League\Flysystem\MountManager;
-use Towa\Acf\Fields\Text;
-use Towa\Acf\Fields\Url;
+use Towa\Acf\Fields\Textarea;
 
 class FtpBackup implements BackupInterface
 {
-	private $acf_name = 'towa_gdpr_backup_local';
+	protected const ACF_PREFIX = 'backup_ftp';
+	protected const INI_SETTINGS_KEY = 'ftp_general_settings';
 
-	private function get_adapter(){
-		$this->get_config();
-		return new Ftp();
+	public function getAcfName($prefix){
+		return $prefix.'_'.self::ACF_PREFIX;
 	}
 
-	private function get_config(){
-		return [
-			'host' => get_field($this->acf_name.'_ftp_host')
-		];
+	private function getAdapter(){
+		return new Ftp($this->getConfig());
 	}
 
-	private function get_local_adapter(){
-		$file_path = wp_upload_dir(). 'towa-gdpr-plugin/';
+	protected function getConfig(): array{
+		$options = get_field(self::INI_SETTINGS_KEY,'option');
+		$settings = parse_ini_string($options);
+		return $settings;
+	}
+
+	protected function getLocalAdapter(){
+		$file_path = WP_CONTENT_DIR . '/uploads/towa-gdpr/';
+		// ToDo use Consent Path Constant
 		return new Local($file_path);
 	}
 
-	public function save(\DateTime $date, $contents)
+	public function save(\DateTime $date)
 	{
-		$remoteFilesystem = new Filesystem($this->get_adapter());
-		$localFileSystem = new Filesystem($this->get_local_adapter());
+		$remoteFilesystem = new Filesystem($this->getAdapter());
+		$localFileSystem = new Filesystem($this->getLocalAdapter());
 		$manager = new MountManager([
 			'local' => $localFileSystem,
 			'remote' => $remoteFilesystem
 		]);
-		$contents = $manager->read('local://'.$date->getTimestamp().'.csv');
-		$manager->write('remote://'.$date->getTimestamp().'.csv',$contents);
+		$manager->copy(
+			'local://'.$date->format('d-m-Y').'.csv',
+			'remote://'.$date->format('d-m-Y').'.csv'
+		);
 	}
 
-	public function get_settings_fields(string $prefix): array
+	public function getSettingsFields(string $prefix): array
 	{
+		// add additional Settings with conditional fields, if you need to
 		return [
-			(new Text($this->acf_name, 'ftp_host', __('FTP Host', 'towa_gdpr_plugin')))->build([
+			(new Textarea($this->getAcfName($prefix), self::INI_SETTINGS_KEY,__('Settings','towa-gdpr')))->build([
+				'instructions' => 'Example FTP settings: <br/> host=ftp.exampleurl.com <br/> root=/ </br> user=exampleuser </br/> password=examplepassword <br/> <a href="https://flysystem.thephpleague.com/v1/docs/adapter/ftp/" target="_blank">all Prameters</a>',
+				'new_lines' => "\n",
 				'conditional_logic' => [
 					[
-						'field' => $prefix . '_backup_type',
-						'operator' => '==',
-						'value' => 'ftp'
-					]
-				]
-			]),
-			(new Text($this->acf_name, 'ftp_user', __('FTP user', 'towa_gdpr_plugin')))->build([
-				'conditional_logic' => [
-					[
-						'field' => $prefix . '_backup_type',
-						'operator' => '==',
-						'value' => 'ftp'
-					]
-				]
-			]),
-			(new Text($this->acf_name, 'ftp_password', __('FTP password', 'towa_gdpr_plugin')))->build([
-				'conditional_logic' => [
-					[
-						'field' => $prefix . '_backup_type',
-						'operator' => '==',
-						'value' => 'ftp'
+						[
+							'field' => $prefix . '_backup_type',
+							'operator' => '==',
+							'value' => 'ftp'
+						]
 					]
 				]
 			])
-
 		];
 	}
 

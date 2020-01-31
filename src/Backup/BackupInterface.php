@@ -20,16 +20,15 @@ interface BackupInterface
 	 * Save current Log file of date to Backuplocation
 	 *
 	 * @param \DateTime $date
-	 * @param $contents
 	 * @return bool
 	 */
-	public function save(\DateTime $date, $contents);
+	public function save(\DateTime $date);
 
 	/**
 	 * Get Acf Settings Fields necessary for Backupprocess
 	 *
 	 * @return array
 	 */
-	public function get_settings_fields(string $prefix): array;
+	public function getSettingsFields(string $prefix): array;
 
 }
