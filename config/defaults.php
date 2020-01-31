@@ -91,11 +91,16 @@ $towa_gdpr_plugin_settings = [
 
 $towa_gdpr_backup_settings = [
     'types' => [
-        'local' => [
-            'class' => 'Towa\GdprPlugin\Backup\FtpBackup',
-            'id' => 'local',
-            'name' => __('Local', 'towa_gdpr_plugin')
-        ]
+        [
+            'name'	=> 'ftp',
+            'id'	=> 'ftp',
+            'class' => 'Towa\GdprPlugin\Backup\FtpBackup'
+        ],
+        [
+            'name' => 'sftp',
+            'id'  => 'sftp',
+            'class' => 'Towa\GdprPlugin\Backup\SftpBackup'
+        ],
     ]
 ];
 
