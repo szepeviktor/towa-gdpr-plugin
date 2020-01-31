@@ -16,6 +16,8 @@ use BrightNucleus\Config\ConfigInterface;
 use BrightNucleus\Config\ConfigTrait;
 use BrightNucleus\Config\Exception\FailedToProcessConfigException;
 use BrightNucleus\Dependency\DependencyManager;
+use Towa\GdprPlugin\Backup\Backup;
+use Towa\GdprPlugin\Backup\BackupCommand;
 use Towa\GdprPlugin\Rest\Rest;
 
 /**
@@ -74,8 +76,10 @@ class Plugin
     public function init(): void
     {
         $this->loadTextdomain();
+        (new Backup())->init_filter();
         $this->registerMenupages();
         $this->loadDependencies();
+        $this->register_cli_command();
         if (!\is_admin() && function_exists('get_fields')) {
             \add_action('wp_footer', [$this, 'loadFooter']);
         }
@@ -280,4 +284,11 @@ class Plugin
             <?php
         }
     }
+
+	public function register_cli_command()
+	{
+		if ((defined('WP_CLI') && WP_CLI)) {
+			\WP_CLI::add_command('towa_gdpr_backup', BackupCommand::class);
+		}
+	}
 }
