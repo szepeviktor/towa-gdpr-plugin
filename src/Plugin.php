@@ -21,9 +21,9 @@ use Towa\GdprPlugin\Backup\BackupCommand;
 use Towa\GdprPlugin\Rest\Rest;
 
 /**
- * Main plugin class.
+ * Class for Main plugin.
  *
- * @author  Martin Welte <martin.welte@towa.at>
+ * @package Towa\GdprPlugin
  */
 class Plugin
 {
