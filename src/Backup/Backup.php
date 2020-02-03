@@ -1,4 +1,12 @@
 <?php
+
+/**
+ * Backup File
+ *
+ * @author Martin Welte
+ * @copyright 2020 Towa
+ */
+
 namespace Towa\GdprPlugin\Backup;
 
 use BrightNucleus\Config\ConfigFactory;
@@ -8,10 +16,17 @@ use Towa\Acf\Fields\Select;
 use Towa\Acf\Fields\Tab;
 use Towa\Acf\Fields\TrueFalse;
 
+/**
+ * Class Backup
+ * @package Towa\GdprPlugin\Backup
+ */
 class Backup{
 
 	use ConfigTrait;
 
+	/**
+	 * @var Collection
+	 */
 	private $allBackupTypes;
 
 	/**
@@ -19,13 +34,19 @@ class Backup{
 	 */
 	private $backupType;
 
+	/**
+	 * Backup constructor.
+	 */
 	public function __construct()
 	{
 		$this->allBackupTypes = $this->getTypes();
 		$this->backupType = $this->getBackupType();
 	}
 
-	public function init_filter(){
+	/**
+	 * init filters of class
+	 */
+	public function init_filter():void {
 		add_filter('towa_gdpr_get_additional_acf_settings',[$this,'getAcfSettings'],10,1);
 	}
 
@@ -43,9 +64,13 @@ class Backup{
 		return $types;
 	}
 
+	/**
+	 * Get Type of currently selected BackupInterface
+	 *
+	 * @return BackupType
+	 */
 	private function getBackupType(): BackupType{
 		$selectedBackuptype = get_field('backup_type','option');
-		$test = $this->allBackupTypes->firstWhere('id',$selectedBackuptype);
 		return $this->allBackupTypes->first(function($item) use($selectedBackuptype){
 			return $item->get_id() == $selectedBackuptype;
 		});
@@ -63,6 +88,12 @@ class Backup{
 		})->all();
 	}
 
+	/**
+	 * Get ACF Settings of Interface Class
+	 *
+	 * @param string $prefix
+	 * @return array
+	 */
 	public function getAcfSettings(string $prefix): array
 	{
 		$general_settings = [
@@ -78,10 +109,48 @@ class Backup{
 		return array_merge( $general_settings, $adapter_settings);
 	}
 
-	private function schedule_backup(){
-
+	/**
+	 * schedule backup yesterdays Consents
+	 */
+	public function scheduleBackup():void{
+		wp_schedule_event(time(),'daily',[$this, 'runBackupOfYesterday']);
 	}
-	public function runBackupOfToday(){
-		($this->backupType->get_intatiate_class())->save(new \DateTime());
+
+	/**
+	 * Backup yesterdays Consent File
+	 *
+	 * @throws \Exception
+	 */
+	public function runBackupOfYesterday(){
+		$today = new \DateTime();
+		$yesterday = $today->add(\DateInterval::createFromDateString('yesterday'));
+		($this->backupType->get_intatiate_class())->save($yesterday);
+	}
+
+	/**
+	 * Run Backup of Specific Date
+	 *
+	 * @param \DateTime $date
+	 */
+	public function runBackupOfDay(\DateTime $date){
+		($this->backupType->get_intatiate_class())->save($date);
+	}
+
+	/**
+	 * Backup all Consent Files to Remote Filesystem
+	 *
+	 * @return int Filecount
+	 */
+	public function runBackupOfAll(){
+		return ($this->backupType->get_intatiate_class()->saveAll());
+	}
+
+	/**
+	 * Remove all Consent Files from Local Filesystem
+	 *
+	 * @return int
+	 */
+	public function removeAllLogFiles(){
+		return ($this->backupType->get_intatiate_class())->removeLocalFiles();
 	}
 }
