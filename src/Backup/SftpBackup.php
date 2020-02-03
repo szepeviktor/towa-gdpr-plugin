@@ -1,21 +1,38 @@
 <?php
 
+/**
+ * SFTP Backup File
+ *
+ * @author Martin Welte
+ * @copyright 2020 Towa
+ */
 
 namespace Towa\GdprPlugin\Backup;
 
-
 use Towa\Acf\Fields\Textarea;
 
+/**
+ * Class SftpBackup
+ *
+ * @package Towa\GdprPlugin\Backup
+ */
 class SftpBackup extends FtpBackup
 {
 	protected const ACF_PREFIX = 'backup_sftp';
 	protected const INI_SETTINGS_KEY = 'sftp_general_settings';
 
+	/**
+	 * get SFTP Adapter
+	 * @return \League\Flysystem\Adapter\Ftp|Sftp
+	 */
 	private function getAdapter()
 	{
 		return new Sftp($this->getConfig());
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function getSettingsFields(string $prefix): array
 	{
 		return [

@@ -1,14 +1,22 @@
 <?php
+
 /**
- * Created by PhpStorm.
- * User: marti
- * Date: 17.01.2020
- * Time: 17:31
+ * Backup Type
+ *
+ * @author       Martin Welte
+ * @copyright    2020 Towa
+ * @license      GPL-2.0+
  */
 
 namespace Towa\GdprPlugin\Backup;
 
+use Towa\GdprPlugin\Plugin;
 
+/**
+ * Class BackupType.
+ *
+ * @package Towa\GdprPlugin\Backup
+ */
 class BackupType
 {
 	private $name;
@@ -17,6 +25,7 @@ class BackupType
 
 	/**
 	 * BackupType constructor.
+	 *
 	 * @param array $typeAsArray
 	 */
 	public function __construct(array $typeAsArray)
@@ -48,6 +57,8 @@ class BackupType
 	}
 
 	/**
+	 * Get Class of Backuptype as String
+	 *
 	 * @return string
 	 */
 	public function get_class_as_string():string {
@@ -55,14 +66,21 @@ class BackupType
 	}
 
 	/**
-	 * Get Intatiated Class of type
+	 * Get initiated Class of Backuptype
+	 *
+	 * @return BackupInterface
 	 */
-	public function get_intatiate_class(){
+	public function get_intatiate_class(): BackupInterface{
 		$class = new $this->class;
 		return $class;
 	}
 
-	public function get_acf_settings(){
+	/**
+	 * Get Acf Settings of Backup Type
+	 *
+	 * @return array
+	 */
+	public function get_acf_settings(): array {
 		return [
 			$this->id => $this->name
 		];
