@@ -22,7 +22,8 @@
     "lint-fix": "cross-env NODE_ENV=development node_modules/eslint/bin/eslint.js src/ --fix"
   },
   "husky": {
-    "pre-commit": "cross-env PRE_COMMIT=true lint-staged"
+    "pre-commit": "cross-env PRE_COMMIT=true lint-staged",
+    "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
   },
   "repository": {
     "type": "git",
@@ -38,8 +39,11 @@
   "homepage": "https://bitbucket.org/towa_gmbh/towa-gdpr-plugin#readme",
   "devDependencies": {
     "@babel/preset-env": "^7.7.1",
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.3.4",
     "browser-sync": "^2.26.7",
     "browser-sync-webpack-plugin": "^2.2.2",
+    "commitlint": "^8.3.5",
     "core-js": "^2.6",
     "cross-env": "^6.0.3",
     "custom-event-polyfill": "^1.0.7",
